@@ -62,7 +62,7 @@ namespace SURFnet.Authentication.Adfs.Plugin
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         public string[] IdentityClaims => new[]
                                               {
-                                                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname"
+                                                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn"
                                               };
 
         /// <summary>

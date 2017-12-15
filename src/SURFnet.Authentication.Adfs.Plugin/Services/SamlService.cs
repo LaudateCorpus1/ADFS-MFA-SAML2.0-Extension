@@ -70,7 +70,7 @@ namespace SURFnet.Authentication.Adfs.Plugin.Services
             Log.InfoFormat("Created AuthnRequest for '{0}' with id '{1}'", identityClaim.Value, authnRequest.Id.Value);
             return authnRequest;
         }
-        
+
         /// <summary>
         /// Verifies the response and gets authentication claim from the response.
         /// </summary>
@@ -124,9 +124,25 @@ namespace SURFnet.Authentication.Adfs.Plugin.Services
         /// <returns>A name identifier.</returns>
         private static string GetNameId(Claim identityClaim)
         {
-            var repository = new ActiveDirectoryRepository();
-            var nameid = $"urn:collab:person:{Settings.Default.schacHomeOrganization}:{repository.GetUserIdForIdentity(identityClaim)}";
+            string userId;
+            var schacHomeOrganization = Settings.Default.schacHomeOrganization;
+            if (identityClaim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn" && !string.IsNullOrWhiteSpace(identityClaim.Value))
+            {
+                if (!identityClaim.Value.Contains("@"))
+                {
+                    throw new Exception("Wrong surfnet id found in UPN claim. Please add the userId and the schacHomeOrganization as userId@schacHomeOrganization");
+                }
 
+                userId = identityClaim.Value.Substring(0, identityClaim.Value.IndexOf("@", StringComparison.InvariantCulture));
+                schacHomeOrganization = identityClaim.Value.Substring(identityClaim.Value.IndexOf("@", StringComparison.InvariantCulture) + 1);
+            }
+            else
+            {
+                var repository = new ActiveDirectoryRepository();
+                userId = repository.GetUserIdForIdentity(identityClaim);
+            }
+
+            var nameid = $"urn:collab:person:{schacHomeOrganization}:{userId}";
             nameid = nameid.Replace('@', '_');
             return nameid;
         }
